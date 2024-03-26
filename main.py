@@ -94,9 +94,17 @@ def accuracyPerImgAndAge():
     nrMiddle /= 15
     nrYoung /= 15
 
+    print(nrOld, nrMiddle, nrYoung)
+
     resultsOld = [x / nrOld * 100 for x in resultsOld]
     resultsMiddle = [x / nrMiddle * 100 for x in resultsMiddle]
     resultsYoung = [x / nrYoung * 100 for x in resultsYoung]
+
+    print(resultsYoung)
+    print(resultsMiddle)
+    print(resultsOld)
+
+    print("-----")
 
     # Combine accuracy values into one list for each group
     combined_accuracy_values = [[resultsYoung[i], resultsMiddle[i], resultsOld[i]] for i in
@@ -137,7 +145,13 @@ def accuracyPerImg():
     totalParticipants /= 15
 
     resultsAll = [x / totalParticipants * 100 for x in resultsAll]
+    generalAcc = 0
+    for result in resultsAll:
+        generalAcc += result
+    generalAcc /= 15
 
+    print(resultsAll)
+    print("General accuracy: " + str(generalAcc))
     # Combine accuracy values into one list for each group
     combined_accuracy_values = [[resultsAll[i]] for i in
                                 range(len(resultsAll))]
@@ -172,4 +186,76 @@ def imgAccuracy(imageNr): # Hardest image: nr 15, Easiest image: nr 2.
     imgAccuracy = imgScore / totalParticipants  * 100
     return imgAccuracy
 #print(imgAccuracy(15))
+
+def accuracyPerAgeRegression():
+
+    x_Old = []
+    x_Middle = []
+    x_Young = []
+    y_Old = []
+    y_Middle = []
+    y_Young = []
+
+    nrOld = 0
+    nrMiddle = 0
+    nrYoung = 0
+
+
+    for result in results[1:]:
+        score = 0
+        for i in range(15, 103, 6):
+            score += float(result[i].split("/")[0])
+            print(score)
+        accuracy = score / 15
+        if int(result[2]) >= OLD_INTERVAL_LOWER_LIMIT:
+            nrOld += 1
+            x_Old.append(int(result[2]))
+            y_Old.append(accuracy)
+        elif int(result[2]) >= MIDDLE_INTERVAL_LOWER_LIMIT:
+            nrMiddle += 1
+            x_Middle.append(int(result[2]))
+            y_Middle.append(accuracy)
+
+        elif int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:
+            nrYoung += 1
+            x_Young.append(int(result[2]))
+            y_Young.append(accuracy)
+
+
+
+    print(nrOld, nrMiddle, nrYoung)
+
+    # Convert to %
+    y_Old = [a * 100 for a in y_Old]
+    y_Middle = [a * 100 for a in y_Middle]
+    y_Young = [a * 100 for a in y_Young]
+
+    print(y_Young)
+    print(y_Middle)
+    print(y_Old)
+
+    #For the regression line
+    x = np.array(x_Young + x_Middle + x_Old)
+    y = np.array(y_Young + y_Middle + y_Old)
+    coefficients = np.polyfit(x, y, 1)  # Performing linear regression (1st degree polynomial)
+    line = np.polyval(coefficients, x)  # Generating y-values for the line
+
+    # Plotting the regression line
+    plt.plot(x, line, color='black', label='Linear Regression')
+    # Creating scatter plot
+    plt.scatter(x_Young, y_Young, color='skyblue', alpha=0.8, label='Data')  # alpha controls transparency
+    plt.scatter(x_Middle, y_Middle, color='salmon', alpha=0.8, label='Data')  # alpha controls transparency
+    plt.scatter(x_Old, y_Old, color='lightgreen', alpha=0.8, label='Data')  # alpha controls transparency
+
+
+
+    # Adding labels and title
+    plt.title('Linear Regression for accuracy in regards to age')
+    plt.xlabel('Age (years)')
+    plt.ylabel('Accuracy (%)')
+
+    plt.show()
+
+accuracyPerAgeRegression()
+
 
