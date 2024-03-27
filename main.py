@@ -27,6 +27,7 @@ def readData():
                 
                 print(row[0])
                 """
+
             results.append(row)
             rowIndex += 1
 readData()
@@ -205,7 +206,6 @@ def accuracyPerAgeRegression():
         score = 0
         for i in range(15, 103, 6):
             score += float(result[i].split("/")[0])
-            print(score)
         accuracy = score / 15
         if int(result[2]) >= OLD_INTERVAL_LOWER_LIMIT:
             nrOld += 1
@@ -255,7 +255,118 @@ def accuracyPerAgeRegression():
     plt.ylabel('Accuracy (%)')
 
     plt.show()
+# accuracyPerAgeRegression()
 
-accuracyPerAgeRegression()
+def confidenceToAccuracyRegression():
+    x = []
+    y = []
+
+    participants = 0
+    for result in results[1:]:
+        if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT: # In oder to remove some unwanted data (from people aged <18):
+            score = 0
+            for i in range(15, 103, 6):
+                score += float(result[i].split("/")[0])
+
+            x.append(int(result[5])) #Add the confidence number to x.
+            accuracy = score / 15
+            y.append(accuracy)
+            participants += 1
+
+    y = [a * 100 for a in y]
+
+    coefficients = np.polyfit(x, y, 1)  # Performing linear regression (1st degree polynomial)
+    line = np.polyval(coefficients, x)  # Generating y-values for the line
+
+    # Plotting the regression line
+    plt.plot(x, line, color='black', label='Linear Regression')
+    # Creating scatter plot
+    plt.scatter(x, y, color='skyblue', alpha=0.8, label='Data')  # alpha controls transparency
 
 
+    # Adding labels and title
+    plt.title('Linear Regression for accuracy in regards to perceived confidence')
+    plt.xlabel('Confidence (1-6)')
+    plt.ylabel('Accuracy (%)')
+
+    plt.show()
+# confidenceToAccuracyRegression()
+
+def confidenceAverageAccuracy():
+    avgAccuracy = [0] * 6
+
+    participants_1 = 0
+    participants_2 = 0
+    participants_3 = 0
+    participants_4 = 0
+    participants_5 = 0
+    participants_6 = 0
+
+    for result in results[1:]:
+        if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:  # In oder to remove some unwanted data (from people aged <18):
+            match int(result[5]):
+                case 1:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[0] += accuracy
+                    participants_1 += 1
+
+
+                case 2:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[1] += accuracy
+                    participants_2 += 1
+
+
+                case 3:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[2] += accuracy
+                    participants_3 += 1
+
+
+                case 4:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[3] += accuracy
+                    participants_4 += 1
+
+
+                case 5:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[4] += accuracy
+                    participants_5 += 1
+
+
+                case 6:
+                    score = 0
+                    for i in range(15, 103, 6):
+                        score += float(result[i].split("/")[0])
+                    accuracy = score / 15
+                    avgAccuracy[5] += accuracy
+                    participants_6 += 1
+
+
+    avgAccuracy[0] /= participants_1
+    avgAccuracy[1] /= participants_2
+    avgAccuracy[2] /= participants_3
+    avgAccuracy[3] /= participants_4
+    avgAccuracy[4] /= participants_5
+    avgAccuracy[5] /= participants_6
+
+    avgAccuracy = [x * 100 for x in avgAccuracy]
+    print(avgAccuracy)
+
+confidenceAverageAccuracy()
