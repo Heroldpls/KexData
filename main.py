@@ -243,11 +243,18 @@ def accuracyPerAgeRegression():
     # Plotting the regression line
     plt.plot(x, line, color='black', label='Linear Regression')
     # Creating scatter plot
-    plt.scatter(x_Young, y_Young, color='skyblue', alpha=0.8, label='Data')  # alpha controls transparency
+    plt.scatter(x_Young, y_Young, color='skyblue', alpha=0.8,  label=str(YOUNG_INTERVAL_LOWER_LIMIT) + " - " + str(MIDDLE_INTERVAL_LOWER_LIMIT- 1) + " year olds")  # alpha controls transparency
     plt.scatter(x_Middle, y_Middle, color='salmon', alpha=0.8, label='Data')  # alpha controls transparency
     plt.scatter(x_Old, y_Old, color='lightgreen', alpha=0.8, label='Data')  # alpha controls transparency
 
+    labels = [
+        "Regression line",
+        str(YOUNG_INTERVAL_LOWER_LIMIT) + " - " + str(MIDDLE_INTERVAL_LOWER_LIMIT - 1) + " year olds",
+        str(MIDDLE_INTERVAL_LOWER_LIMIT) + " - " + str(OLD_INTERVAL_LOWER_LIMIT - 1) + " year olds",
+        str(OLD_INTERVAL_LOWER_LIMIT) + "+ year olds"
+    ]
 
+    plt.legend(labels=labels, loc='upper right')
 
     # Adding labels and title
     plt.title('Linear Regression for accuracy in regards to age')
@@ -255,7 +262,7 @@ def accuracyPerAgeRegression():
     plt.ylabel('Accuracy (%)')
 
     plt.show()
-# accuracyPerAgeRegression()
+accuracyPerAgeRegression()
 
 def confidenceToAccuracyRegression():
     x = []
