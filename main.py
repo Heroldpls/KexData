@@ -63,7 +63,7 @@ def calcAvgScoreAgeIntervals():
         avgYoung += result
     avgYoung /= len(resultsYoung)
 
-    print("Young: " + str(avgYoung/15), ", Middle " + str(avgMiddle/15), ", Old: "+ str(avgOld/15))  # /15 for accuracy
+    print("Averages for Young: " + str(avgYoung/15), ", Middle " + str(avgMiddle/15), ", Old: "+ str(avgOld/15))  # /15 for accuracy
 #calcAvgScoreAgeIntervals()
 
 def accuracyPerImgAndAge():
@@ -186,7 +186,7 @@ def imgAccuracy(imageNr): # Hardest image: nr 15, Easiest image: nr 2.
 
     imgAccuracy = imgScore / totalParticipants  * 100
     return imgAccuracy
-#print(imgAccuracy(15))
+#print("Image specific accuracy" + str(imgAccuracy(15)))
 
 def accuracyPerAgeRegression():
 
@@ -262,7 +262,7 @@ def accuracyPerAgeRegression():
     plt.ylabel('Accuracy (%)')
 
     plt.show()
-accuracyPerAgeRegression()
+#accuracyPerAgeRegression()
 
 def confidenceToAccuracyRegression():
     x = []
@@ -297,7 +297,7 @@ def confidenceToAccuracyRegression():
     plt.ylabel('Accuracy (%)')
 
     plt.show()
-# confidenceToAccuracyRegression()
+#confidenceToAccuracyRegression()
 
 def confidenceAverageAccuracy():
     avgAccuracy = [0] * 6
@@ -376,4 +376,21 @@ def confidenceAverageAccuracy():
     avgAccuracy = [x * 100 for x in avgAccuracy]
     print(avgAccuracy)
 
-confidenceAverageAccuracy()
+#confidenceAverageAccuracy()
+
+def aiToRealGuessRatio():
+
+    totalGuesses = 0
+    totalAIGuesses = 0
+
+    for result in results[1:]:
+        if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:  # In oder to remove some unwanted data (from people aged <18):
+            score = 0
+            for i in range(14, 103, 6):
+                totalGuesses += 1
+                if result[i] == "Ja":
+                    totalAIGuesses += 1
+
+    print(totalAIGuesses/totalGuesses)
+
+aiToRealGuessRatio()
