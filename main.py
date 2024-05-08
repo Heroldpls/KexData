@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+import matplotlib.colors as mcolors
+
 
 file_path = "Results.csv"
 
@@ -31,7 +33,6 @@ def readData():
             results.append(row)
             rowIndex += 1
 readData()
-
 
 #  Calculates the average score of each age interval.
 def calcAvgScoreAgeIntervals():
@@ -129,7 +130,77 @@ def accuracyPerImgAndAge():
 
     # Show plot
     plt.show()
-#accuracyPerImgAndAge()
+accuracyPerImgAndAge()
+
+def accuracyPerImgAndAgeOnlySomeImg():
+
+    resultsOld = [0] * 15
+    resultsMiddle = [0] * 15
+    resultsYoung = [0] * 15
+
+    nrOld = 0
+    nrMiddle = 0
+    nrYoung = 0
+
+    for result in results[1:]:
+        imgIndex = 0
+        for i in range(15, 103, 6):
+            if int(result[2]) >= OLD_INTERVAL_LOWER_LIMIT:
+                nrOld += 1
+                resultsOld[imgIndex] += float(result[i].split("/")[0])
+            elif int(result[2]) >= MIDDLE_INTERVAL_LOWER_LIMIT:
+                nrMiddle += 1
+                resultsMiddle[imgIndex] += float(result[i].split("/")[0])
+            elif int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT :
+                nrYoung += 1
+                resultsYoung[imgIndex] += float(result[i].split("/")[0])
+
+            imgIndex += 1
+
+    nrOld /= 15
+    nrMiddle /= 15
+    nrYoung /= 15
+
+    print(nrOld, nrMiddle, nrYoung)
+
+    resultsOld = [x / nrOld * 100 for x in resultsOld]
+    resultsMiddle = [x / nrMiddle * 100 for x in resultsMiddle]
+    resultsYoung = [x / nrYoung * 100 for x in resultsYoung]
+
+
+
+    print("-----")
+    resultsYoung = [resultsYoung[0], resultsYoung[2], resultsYoung[4]]
+    resultsMiddle = [resultsMiddle[0], resultsMiddle[2], resultsMiddle[4]]
+    resultsOld = [resultsOld[0], resultsOld[2], resultsOld[4]]
+
+    print(resultsYoung)
+    print(resultsMiddle)
+    print(resultsOld)
+
+    # Combine accuracy values into one list for each group
+    combined_accuracy_values = [[resultsYoung[i], resultsMiddle[i], resultsOld[i]] for i in
+                                range(len(resultsYoung))]
+
+    # Generate x values for 15 groups
+    x = np.arange(1, 6, 2)
+
+    # Plot the bars
+    plt.bar(x - 0.4, [values[0] for values in combined_accuracy_values], width=0.4, color='skyblue', label=str(YOUNG_INTERVAL_LOWER_LIMIT) + " - " + str(MIDDLE_INTERVAL_LOWER_LIMIT- 1) + " year olds")
+    plt.bar(x, [values[1] for values in combined_accuracy_values], width=0.4, color='salmon', label=str(MIDDLE_INTERVAL_LOWER_LIMIT) + " - " + str(OLD_INTERVAL_LOWER_LIMIT- 1) + " year olds")
+    plt.bar(x + 0.4, [values[2] for values in combined_accuracy_values], width=0.4, color='lightgreen', label=str(OLD_INTERVAL_LOWER_LIMIT) + "+  year olds")
+
+    # Add labels and title
+    plt.xlabel('Image (nr)')
+    plt.ylabel('Accuracy (%)')
+    plt.title('Standout age-statistics')
+    plt.xticks(x, x)
+    plt.yticks(range(0, 105, 10))
+    plt.legend()
+
+    # Show plot
+    plt.show()
+#accuracyPerImgAndAgeOnlySomeImg()
 
 def accuracyPerImg():
     resultsAll = [0] * 15
@@ -138,7 +209,7 @@ def accuracyPerImg():
     for result in results[1:]:
         imgIndex = 0
         for i in range(15, 103, 6):
-            if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT :
+            if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:
                 resultsAll[imgIndex] += float(result[i].split("/")[0])
                 imgIndex += 1
                 totalParticipants += 1
@@ -154,15 +225,33 @@ def accuracyPerImg():
     print(resultsAll)
     print("General accuracy: " + str(generalAcc))
     # Combine accuracy values into one list for each group
-    combined_accuracy_values = [[resultsAll[i]] for i in
-                                range(len(resultsAll))]
+    combined_accuracy_values = [[resultsAll[i]] for i in range(len(resultsAll))]
 
+
+    real_images = [1,3,4,6,7,9,10,12,13,15]
+    real_accuracy_values = [combined_accuracy_values[i - 1] for i in real_images]
+
+    fake_images = [2,5,8,11,14]
+    fake_accuracy_values = [combined_accuracy_values[i - 1] for i in fake_images]
     # Generate x values for 15 groups
     x = np.arange(1, 16)
 
     # Plot the bars
-    plt.bar(x - 0.2, [values[0] for values in combined_accuracy_values], width=0.2, color='skyblue',
-            label=str(YOUNG_INTERVAL_LOWER_LIMIT) + "+ year olds")
+    light_green = mcolors.to_rgb('lightgreen')
+    darker_green = tuple(max(0, c - 0.1) for c in light_green) #make slightly darker green.
+    colors = [darker_green] * 15  # Set default color for all bars
+    # Change color for specific bars (for example, bars 1, 5, and 10)
+    #specific_bars = [2, 5, 8, 11, 14]
+    """
+    for bar_index in specific_bars:
+        colors[bar_index - 1] = 'salmon'  # Adjust index to match Python's 0-based indexing
+    """
+
+
+    plt.bar(real_images, [values[0] for values in real_accuracy_values], width=0.5, color=darker_green,
+            label="REAL")
+    plt.bar(fake_images, [values[0] for values in fake_accuracy_values], width=0.5, color="salmon",
+            label="AI")
 
     # Add labels and title
     plt.xlabel('Image (nr)')
@@ -186,7 +275,7 @@ def imgAccuracy(imageNr): # Hardest image: nr 15, Easiest image: nr 2.
 
     imgAccuracy = imgScore / totalParticipants  * 100
     return imgAccuracy
-#print("Image specific accuracy" + str(imgAccuracy(15)))
+#print("Image specific accuracy" + str(imgAccuracy(2)))
 
 def accuracyPerAgeRegression():
 
@@ -262,7 +351,7 @@ def accuracyPerAgeRegression():
     plt.ylabel('Accuracy (%)')
 
     plt.show()
-#accuracyPerAgeRegression()
+accuracyPerAgeRegression()
 
 def confidenceToAccuracyRegression():
     x = []
@@ -375,7 +464,6 @@ def confidenceAverageAccuracy():
 
     avgAccuracy = [x * 100 for x in avgAccuracy]
     print(avgAccuracy)
-
 #confidenceAverageAccuracy()
 
 def aiToRealGuessRatio():
@@ -384,7 +472,7 @@ def aiToRealGuessRatio():
     totalAIGuesses = 0
 
     for result in results[1:]:
-        if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:  # In oder to remove some unwanted data (from people aged <18):
+        if int(result[2]) >= YOUNG_INTERVAL_LOWER_LIMIT:  # In order to remove some unwanted data (from people aged <18):
             score = 0
             for i in range(14, 103, 6):
                 totalGuesses += 1
@@ -392,5 +480,4 @@ def aiToRealGuessRatio():
                     totalAIGuesses += 1
 
     print(totalAIGuesses/totalGuesses)
-
-aiToRealGuessRatio()
+#aiToRealGuessRatio()
